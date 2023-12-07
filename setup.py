@@ -2,13 +2,14 @@ from setuptools import setup, Extension
 from setuptools.command.build_ext import build_ext
 import os
 import sys
+from Cython.Build import cythonize # uncomment to recythonize
 
-class build_numpy(build_ext):
-    def finalize_options(self):
-        build_ext.finalize_options(self)
-        __builtins__.__NUMPY_SETUP__ = False
-        import numpy
-        self.include_dirs.append(numpy.get_include())
+# class build_numpy(build_ext):
+#     def finalize_options(self):
+#         build_ext.finalize_options(self)
+#         __builtins__.__NUMPY_SETUP__ = False
+#         import numpy
+#         self.include_dirs.append(numpy.get_include())
 
 def install(gmp):
     description = 'Python binding of the CORELS algorithm'
@@ -19,6 +20,8 @@ def install(gmp):
     with open('corels/VERSION') as f:
         version = f.read().strip()
 
+    pyx_file = 'corels/_corels.pyx'
+
     source_dir = 'corels/src/corels/src/'
     sources = ['utils.cpp', 'rulelib.cpp', 'run.cpp', 'pmap.cpp', 
                'corels.cpp', 'cache.cpp']
@@ -26,8 +29,9 @@ def install(gmp):
     for i in range(len(sources)):
         sources[i] = source_dir + sources[i]
     
-    sources.append('corels/_corels.cpp')
     sources.append('corels/src/utils.cpp')
+    sources.append(pyx_file) # comment to not cythonize
+    # sources.append('corels/src/corels.cpp')
 
     cpp_args = ['-Wall', '-O3', '-std=c++11']
     libraries = []
@@ -52,6 +56,7 @@ def install(gmp):
                 extra_compile_args = cpp_args)
 
     extensions = [extension]
+    extensions = cythonize(extensions) # comment to not cythonize
 
     numpy_version = 'numpy'
 
@@ -71,7 +76,6 @@ def install(gmp):
         install_requires = [numpy_version],
         python_requires = '>=2.7',
         url = 'https://github.com/fingoldin/pycorels',
-        cmdclass = {'build_ext': build_numpy},
         license = "GNU General Public License v3 (GPLv3)",
         package_dir={'corels': 'corels'},
         package_data={'corels': ['VERSION']},

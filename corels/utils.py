@@ -14,7 +14,7 @@ def check_array(x, ndim=None):
         raise ValueError("Array must be " + str(ndim) + "-dimensional in shape, got " + str(x.ndim) +
                          " dimensions instead")
 
-    asbool = x.astype(np.bool)
+    asbool = x.astype(np.bool_)
 
     if not np.array_equal(x, asbool):
         raise ValueError("Array must contain only binary members (0 or 1), got " + str(x));
